@@ -1,0 +1,6 @@
+python-dotenv #pip install -r requirements.txt to run the project
+#popular Python library used to read key-value pairs from a .env file and set them as environment variables. It simplifies
+  #configuration management, enhances application security,
+#https://12factor.net/  (check out this) these are the 12 factors for building modern, scalable, and maintainable web applications.
+  #It emphasizes best practices for configuration management, security, and deployment in cloud environments.
+snowflake-connector-python

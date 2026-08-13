@@ -1,0 +1,136 @@
+#here we use local executors(min req. are schedulerand metadata db[postgres]) out of the 4 types of executors
+services: 
+  postgres: #mandatory[why use postgres if we are creating csv and using snowflake PostgreSQL's role in Airflow When you run Airflow with Docker Compose, PostgreSQL is commonly used as Airflow's metadata database.]
+    image: postgres:15
+    container_name: airflow-postgres
+    restart: always 
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      volumes:
+      - postgres_data:/var/lib/postgresql/data
+       #It is the default storage directory where the official PostgreSQL Image on Docker Hub writes all of its database files, schemas, and tables
+    ports:
+      - "5432:5432"
+
+  airflow-init: #initialization service[db,scheduler,webserver] mandatory for local executor
+    image: apache/airflow:2.9.3
+    container_name: airflow-init
+    depends_on:
+      - postgres
+    environment:
+      AIRFLOW__CORE__LOAD_EXAMPLES: "False" # Disables the loading of Airflow's built-in tutorial and example DAGs, keeping your UI clean and focused only on your custom workflows.
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      # tells Airflow exactly how to connect to its metadata database. 
+    entrypoint: /bin/bash # to override a container's default executable and force it to launch a Bash shell upon startup.
+    #try to understand the  use of docker run -it --entrypoint /bin/bash <image_name>
+    command: >
+      -c "
+      echo 'Waiting for PostgreSQL...' &&
+      sleep 10 &&    
+      airflow db init &&
+      airflow db migrate &&
+      airflow users create --username ${AIRFLOW_ADMIN_USER} --firstname ${AIRFLOW_ADMIN_FIRSTNAME} --lastname ${AIRFLOW_ADMIN_LASTNAME} 
+      --role Admin --email ${AIRFLOW_ADMIN_EMAIL} --password ${AIRFLOW_ADMIN_PASSWORD} &&
+      echo 'Airflow DB initialized successfully.'"
+    airflow-webserver: #complementory/not mandatory but required for UI
+  # It provides a graphical, browser-based dashboard to manage data pipelines (DAGs), monitor executions, and configure system settings.
+  #Log Inspection,System Administration:like databases, cloud providers,manage user permissions, and set global variables.API Endpoint 
+    image: apache/airflow:2.9.3
+    container_name: airflow-webserver
+    restart: always
+    depends_on:
+      - airflow-init
+      - airflow-scheduler
+      - postgres
+    environment:
+      AIRFLOW__CORE__LOAD_EXAMPLES: "False"
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      _PIP_ADDITIONAL_REQUIREMENTS: "-r /opt/airflow/requirements.txt"
+    volumes:
+      - ./dags:/opt/airflow/dags  # Where you place your Airflow DAG Python files.
+      - ./scripts:/opt/airflow/scripts #For custom shell scripts or initialization steps.   
+      - ./logs:/opt/airflow/logs #Persists task logs on your local machine so they are not lost when containers restart.
+      - ./plugins:/opt/airflow/plugins # For custom Airflow plugins, operators, or hooks.
+      - ./data:/opt/airflow/data #A shared local directory to store or read data files (like CSVs or JSONs) used by your pipelines.
+     # - ./sql:/opt/airflow/sql # to sync local SQL files with the Airflow container.
+      - ./requirements.txt:/opt/airflow/requirements.txt
+    ports:
+      - "8080:8080"
+    command: webserver 
+    # The command webserver tells the Airflow container to start the web server process, which serves
+      #the Airflow UI and API endpoints. This is essential for users to interact with Airflow through a browser 
+      #or programmatically via API calls.
+
+ #why do we need dag processor if we can do it withdag scheduler in airflow
+ #why do we create workers in airflow if we have workers in pyspark or kafka?[Orchestrate: Triggers external systems, checks statuses, manages retries, and passes credentials.]
+  airflow-scheduler: #mandatory
+  #persistent background service responsible for monitoring all DAGs and tasks, and triggering task instances whose scheduled time
+    #has arrived and whose upstream dependencies have been met.
+    image: apache/airflow:2.9.3
+    container_name: airflow-scheduler
+    restart: always
+    depends_on:
+      - airflow-init
+      - postgres
+    environment:
+      AIRFLOW__CORE__LOAD_EXAMPLES: "False"
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      _PIP_ADDITIONAL_REQUIREMENTS: "-r /opt/airflow/requirements.txt"
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - ./scripts:/opt/airflow/scripts
+      - ./logs:/opt/airflow/logs
+      - ./plugins:/opt/airflow/plugins
+      - ./data:/opt/airflow/data
+     # - ./sql:/opt/airflow/sql
+      - ./requirements.txt:/opt/airflow/requirements.txt
+    command: scheduler # scheduler (or airflow scheduler) to start the persistent Airflow Scheduler Engine. Without this command,
+        #the container will not process, orchestrate, or trigger your automated workflows.
+
+volumes:
+  postgres_data:   #to save your database data permanently outside the container. Without it, all your tables, rows, and changes
+  # will be completely erased the moment you stop or delete the container.Why You Need It-:Data Saving (Persistence): Docker containers are temporary.
+    # When a container shuts down or updates, its internal storage is wiped clean
+
+#we are not creating container for airflow-worker because we are using local executor which runs the tasks in the same process as the scheduler.
+#we ARE not creating container for DAG-processor because we are using local executor which runs the tasks in the same process as the scheduler.
+#here scheduler works as a DAG processor and worker both.[making it a single point of failure and slower]
+# remember the order of staring the containers 1st->postgres, 2nd->airflow-init, 3rd->airflow-scheduler, 4th->airflow-webserver
+             #Snowflake = data warehouse                 PostgreSQL = Airflow metadata database
+#services is the top-level configuration block where you define the individual containers
+# that make up your application.Think of a "service" as a blueprint for a containerized microservice—such 
+# as a web server, a database, or a caching layer. When you run docker compose up, Docker uses these service 
+# definitions to spin up, configure, and connect your active containers automatically
+
+#AIRFLOW__DATABASE__SQL_ALCHEMY_CONN:The double underscores (__) map directly to Airflow’s configuration file hierarchy (airflow.cfg), s
+    #specifically setting the sql_alchemy_conn parameter under the [database] section.
+ #postgresql+psycopg2:This specifies the database driver and dialect. It tells Airflow to connect to a PostgreSQL database
+ # using psycopg2, which is the standard Python adapter for PostgreSQL. psycopg2 is used to connect Python programs 
+ #to PostgreSQL databases, execute SQL queries, and manage database transactions.
+ #@postgres The @ symbol separates the credentials from the network location. postgres is the hostname of the database server.
+  # In a Docker Compose setup, this matches the name of the PostgreSQL container service(see its postgres only).
+ 
+
+ #   airflow-init command description===>sleep=used to wait for a dependent external database container to start up.
+  #airflow db init=Initializes a brand-new clean database. Note that in modern Airflow versions, airflow db migrate handles schema creation and upgrades automatically,
+     #making db init optional or redundant if migrations are run.
+  #airflow db migrate: Applies the latest database migrations and updates the schema structure.
+  #airflow users create: Creates an administrator account using the specified environment variables like ${AIRFLOW_ADMIN_USER}
+
+
+# restart: always=PostgreSQL container instructs the Docker daemon to automatically restart the container
+    #whenever it stops or crashes, regardless of the exit code.
+    #use Automatic Recovery From Crashes,If the Postgres process crashes due to an out-of-memory error (OOM)
+    #Docker will immediately spin the container back up. This minimizes database downtime without requiring manual developer intervention
+    #always=restarts when the docker deamon restarts(without explicit command)   vs
+    #unless-stopped=it stays stoped indefinintely until you manually start it again, even if the Docker daemon restarts.  
+
+#Postgres environment variable=Define these variables locally in a .env file in the same folder as your docker-compose.yml file so Docker can read them.
+      #understand the default cases for POSTGRES_USER and POSTGRES_DB, which are both set to "postgres" if you don't specify them in 
+      #the .env file[Defaults to matching the value of POSTGRES_USER if left empty for POSTGRES_DB].
+      #POSTGRES_DB Role: Sets the name of the first database created at startup.
+      #what does this initial/first database means Immediate Access:start creating tables right away without needing to manually run a CREATE DATABASE
+      #Automate:automate your environment setup in scripts or Docker Compose files.
+      #One-Time Action:This database is only created on the initial startup of the container when the data folder is completely empty. It will not be recreated or altered on subsequent restarts
