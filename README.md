@@ -1,5 +1,4 @@
-# OpenSky Flight Data Pipeline
-
+# airflow_airplane ,a data pipeline of OpenSky Flights 
 A project to demonstrate how to extract flight data from the OpenSky Network API, process it using the principles of Medallion Architecture, orchestrate the workflow with Apache Airflow, and generate analytical datasets for storage in Snowflake.
 
 # Airflow OpenSky Medallion Data Pipeline
