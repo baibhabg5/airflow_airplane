@@ -20,6 +20,7 @@ The pipeline follows the Medallion Architecture:
 
 Apache Airflow orchestrates the complete workflow and manages task dependencies and scheduled executions.
 
+
 # Architecture
 
 ```text
@@ -56,6 +57,12 @@ Apache Airflow orchestrates the complete workflow and manages task dependencies 
 ```
 
 Apache Airflow manages the execution and dependencies between these stages.
+# Some Snapshot
+<img width="519" height="390" alt="Screenshot from 2026-08-07 02-36-38" src="https://github.com/user-attachments/assets/0a018d96-12cc-4086-9f4a-66d8790a9c4f" />
+<img width="1875" height="770" alt="Screenshot from 2026-08-07 02-37-13" src="https://github.com/user-attachments/assets/3feb9f9b-f055-4a8f-ad7e-07abd36eb9fe" />
+<img width="1875" height="770" alt="Screenshot from 2026-08-07 02-38-07" src="https://github.com/user-attachments/assets/06cc4778-7e8f-4924-9260-60291cf32321" />
+<img width="1887" height="995" alt="Screenshot from 2026-08-06 21-41-54" src="https://github.com/user-attachments/assets/58051c79-99ba-46eb-ac05-a632914aa817" />
+<img width="1548" height="959" alt="Screenshot from 2026-08-06 21-36-47" src="https://github.com/user-attachments/assets/ad0238cd-2a2c-45a3-b813-f064db99d6f8" />
 
 # Data Source
 
