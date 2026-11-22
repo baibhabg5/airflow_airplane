@@ -54,7 +54,7 @@ Apache Airflow manages the execution and dependencies between these stages.
 
 **Multi KPI card Showing different Metrics to help analyse FLights in depth**
 
---More charts in docs--
+--More charts in docs folder--
 
 # Architecture
 
