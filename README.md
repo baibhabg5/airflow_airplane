@@ -20,6 +20,41 @@ The pipeline follows the Medallion Architecture:
 
 Apache Airflow orchestrates the complete workflow and manages task dependencies and scheduled executions.
 
+Apache Airflow manages the execution and dependencies between these stages.
+# Some Snapshots
+<img width="519" height="390" alt="Screenshot from 2026-08-07 02-36-38" src="https://github.com/user-attachments/assets/0a018d96-12cc-4086-9f4a-66d8790a9c4f" />
+
+**Airflow UI shows the DAG Runs Durations and Success or Failure**
+
+<img width="1875" height="770" alt="Screenshot from 2026-08-07 02-37-13" src="https://github.com/user-attachments/assets/3feb9f9b-f055-4a8f-ad7e-07abd36eb9fe" />
+
+**Graph View of the DAGs**
+
+<img width="1875" height="770" alt="Screenshot from 2026-08-07 02-38-07" src="https://github.com/user-attachments/assets/06cc4778-7e8f-4924-9260-60291cf32321" />
+
+**Gnatt Chart for the DAG runs**
+
+
+<img width="1887" height="995" alt="Screenshot from 2026-08-06 21-41-54" src="https://github.com/user-attachments/assets/58051c79-99ba-46eb-ac05-a632914aa817" />
+
+**DAGs Run Duration**
+
+
+<img width="1548" height="959" alt="Screenshot from 2026-08-06 21-36-47" src="https://github.com/user-attachments/assets/ad0238cd-2a2c-45a3-b813-f064db99d6f8" />
+
+**Docker Containers Started and Running**
+
+
+<img width="870" height="466" alt="ORIGIN_COUNTRY VS TOTAL_FLIGHTS-1786650247398 (1)" src="https://github.com/user-attachments/assets/0eb792d2-e0ad-4dc7-9430-766ea054b42d" />
+
+**KPI Card for Grounded vs Airborne FLights**
+
+
+<img width="757" height="333" alt="ORIGIN_COUNTRY VS TOTAL_FLIGHTS Copy Copy Copy-1786650194855 (1)" src="https://github.com/user-attachments/assets/3b1e7fcb-dad6-405e-a030-63333e2b1863" />
+
+**Multi KPI card Showing different Metrics to help analyse FLights in depth**
+
+--More charts in docs--
 
 # Architecture
 
@@ -55,17 +90,6 @@ Apache Airflow orchestrates the complete workflow and manages task dependencies 
                  ▼
        Snowflake Analytical Tables
 ```
-
-Apache Airflow manages the execution and dependencies between these stages.
-# Some Snapshots
-<img width="519" height="390" alt="Screenshot from 2026-08-07 02-36-38" src="https://github.com/user-attachments/assets/0a018d96-12cc-4086-9f4a-66d8790a9c4f" />
-<img width="1875" height="770" alt="Screenshot from 2026-08-07 02-37-13" src="https://github.com/user-attachments/assets/3feb9f9b-f055-4a8f-ad7e-07abd36eb9fe" />
-<img width="1875" height="770" alt="Screenshot from 2026-08-07 02-38-07" src="https://github.com/user-attachments/assets/06cc4778-7e8f-4924-9260-60291cf32321" />
-<img width="1887" height="995" alt="Screenshot from 2026-08-06 21-41-54" src="https://github.com/user-attachments/assets/58051c79-99ba-46eb-ac05-a632914aa817" />
-<img width="1548" height="959" alt="Screenshot from 2026-08-06 21-36-47" src="https://github.com/user-attachments/assets/ad0238cd-2a2c-45a3-b813-f064db99d6f8" />
-<img width="870" height="466" alt="ORIGIN_COUNTRY VS TOTAL_FLIGHTS-1786650247398 (1)" src="https://github.com/user-attachments/assets/0eb792d2-e0ad-4dc7-9430-766ea054b42d" />
-<img width="757" height="333" alt="ORIGIN_COUNTRY VS TOTAL_FLIGHTS Copy Copy Copy-1786650194855 (1)" src="https://github.com/user-attachments/assets/3b1e7fcb-dad6-405e-a030-63333e2b1863" />
-<img width="743" height="315" alt="New VXB BZ CopyBZ-1786651614133 (1)" src="https://github.com/user-attachments/assets/47c9542e-6b99-4cda-bf92-d1eac7851585" />
 
 # Data Source
 
